@@ -14,7 +14,6 @@
     --muted:rgba(245,245,245,0.72);
     --accent:#ff4d6d;
     --shadow:0 18px 60px rgba(0,0,0,.45);
-    --radius:16px;
     --vh:1vh; /* JS에서 실제 화면 높이로 갱신 */
   }
 
@@ -42,7 +41,7 @@
     align-items:center;
     justify-content:center;
     gap:8px;
-    padding: 8px 10px 56px; /* 하단 버튼 공간(이전보다 더 얇게) */
+    padding: 0; /* ✅ 프레임 제거 + 화면 꽉 */
     opacity:0;
     transform: translateY(8px) scale(0.985);
     transition: opacity .55s ease, transform .55s ease;
@@ -53,52 +52,92 @@
     z-index:2;
   }
 
-  /* 상단 제목: 기본은 아주 작게, 가로에서는 숨김 */
-  .title{
-    font-weight:700;
-    font-size:12px;
-    color:var(--muted);
-    margin:0;
-    line-height:1.1;
-    text-align:center;
-  }
-  @media (orientation: landscape){
-    .title{ display:none; } /* ✅ 가로에서는 제목 영역 자체 제거 */
-  }
-
-  /* 프러포즈 문구 */
-  .question{
-    font-weight:950;
-    letter-spacing:-0.04em;
-    text-align:center;
-    line-height:1.1;
-    margin:0 0 2px;
-    font-size:22px;
-  }
-
-  /* ✅ 핵심: 프레임을 "실제로 더 크게", 배경/여백은 더 얇게 */
-  .frame{
-    width: min(1100px, 99vw);
-    height: min(calc(var(--vh) * 94), 90vh); /* ✅ 더 크게 */
+  /* 커버(첫 화면): 이미지 + 버튼을 하나로 */
+  .cover{
+    position:relative;
+    width:100%;
+    height:100%;
     display:flex;
     align-items:center;
     justify-content:center;
-    background: rgba(0,0,0,0.18);           /* ✅ 검은 카드 존재감 낮춤 */
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow:hidden;
   }
 
-  /* 이미지: 최대 크게, 여백 최소 */
-  img{
+  /* 페이지 이미지: 최대 크게 */
+  .page img{
     width:100%;
     height:100%;
     object-fit:contain;
     display:block;
   }
 
-  /* 하단 네비: 매우 슬림 */
+  /* 첫 화면 터치 안내(안 보이게 처리) */
+  .cover-hit{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    background: transparent;
+  }
+
+  /* 시작하기 버튼: 작게, 이미지 위에 오버레이 */
+  .start-btn{
+    position:absolute;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    padding: 8px 22px;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing:-0.02em;
+    border:none;
+    border-radius:999px;
+    background: var(--accent);
+    color:white;
+    box-shadow:0 12px 24px rgba(255,77,109,.28);
+    cursor:pointer;
+    z-index:10;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 프러포즈 문구 */
+  .question{
+    position:absolute;
+    top: max(10px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    text-align:center;
+    font-weight:950;
+    letter-spacing:-0.04em;
+    line-height:1.1;
+    margin:0;
+    font-size:22px;
+    z-index:10;
+    text-shadow: 0 8px 24px rgba(0,0,0,.45);
+    pointer-events:none;
+  }
+
+  /* Yes 버튼: 이미지 위에 오버레이 */
+  .yes-btn{
+    position:absolute;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    padding: 10px 26px;
+    font-size: 15px;
+    font-weight: 900;
+    border:none;
+    border-radius:999px;
+    background: var(--accent);
+    color:white;
+    box-shadow:0 12px 24px rgba(255,77,109,.28);
+    cursor:pointer;
+    z-index:10;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .yes-btn.pulse{ animation:pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.03)} }
+
+  /* 하단 이전/다음: 2페이지부터만 보이게(표지는 숨김) */
   .bottom-nav{
     position:fixed;
     left:0;
@@ -111,41 +150,23 @@
     z-index:50;
     pointer-events:none;
   }
-
-  .nav-btn, .start-btn, .yes-btn{
+  .nav-btn{
     pointer-events:auto;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 900;
     border:none;
     border-radius:999px;
-    font-weight:900;
-    letter-spacing:-0.02em;
+    background: rgba(255,255,255,0.80);
+    color:#141414;
+    opacity:0.65;
     cursor:pointer;
     user-select:none;
     -webkit-tap-highlight-color:transparent;
   }
-
-  .nav-btn{
-    padding: 8px 12px;
-    font-size: 13px;
-    background: rgba(255,255,255,0.80);
-    color:#141414;
-    opacity:0.65; /* ✅ 더 덜 튀게 */
-  }
   .nav-btn:disabled{ opacity:.28; cursor:not-allowed; }
 
-  .start-btn, .yes-btn{
-    padding: 10px 24px;
-    font-size: 15px;
-    background: var(--accent);
-    color:white;
-    box-shadow: 0 12px 24px rgba(255,77,109,.28);
-  }
-
-  /* ✅ 시작 페이지에서 "시작하기"가 메인, 이전/다음은 숨김 */
-  body.is-cover .nav-btn{ display:none; }
-
-  /* Yes 버튼 반복 클릭 유도(은은하게) */
-  .yes-btn.pulse{ animation:pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+  body.is-cover .bottom-nav{ display:none; } /* ✅ 첫 화면에 네비 제거 */
 
   /* 꽃잎 */
   .petals{ position:fixed; inset:0; pointer-events:none; z-index:200; }
@@ -179,29 +200,33 @@
 <audio id="bgm" src="music.mp3" loop></audio>
 <audio id="sfx" src="firework.mp3" preload="auto"></audio>
 
-<!-- 1: 표지 -->
-<div class="page active">
-  <h1 class="title">우리들의 이야기</h1>
-  <div class="frame"><img src="1.png" alt="cover"></div>
-  <button class="start-btn" onclick="nextPage()">시작하기</button>
+<!-- 1: 표지 (아무 곳 터치해도 시작하기) -->
+<div class="page active" id="coverPage">
+  <div class="cover" id="coverArea">
+    <img src="1.png" alt="cover">
+    <button class="start-btn" id="startBtn" type="button">시작하기</button>
+    <!-- 화면 전체 터치 영역 -->
+    <div class="cover-hit" aria-hidden="true"></div>
+  </div>
 </div>
 
 <!-- 2~5 -->
-<div class="page"><div class="frame"><img src="2.png" alt="p2"></div></div>
-<div class="page"><div class="frame"><img src="3.png" alt="p3"></div></div>
-<div class="page"><div class="frame"><img src="4.png" alt="p4"></div></div>
-<div class="page"><div class="frame"><img src="5.png" alt="p5"></div></div>
+<div class="page"><img src="2.png" alt="p2"></div>
+<div class="page"><img src="3.png" alt="p3"></div>
+<div class="page"><img src="4.png" alt="p4"></div>
+<div class="page"><img src="5.png" alt="p5"></div>
 
 <!-- 6: 마지막 -->
 <div class="page">
   <h2 class="question">나와 결혼해줄래? 💍💐</h2>
-  <div class="frame"><img src="6.png" alt="proposal"></div>
-  <button id="yesBtn" class="yes-btn pulse" onclick="celebrate()">Yes!</button>
+  <img src="6.png" alt="proposal">
+  <button id="yesBtn" class="yes-btn pulse" type="button">Yes!</button>
 </div>
 
+<!-- 하단 이전/다음 -->
 <div class="bottom-nav">
-  <button id="prevBtn" class="nav-btn" onclick="prevPage()" disabled>이전</button>
-  <button id="nextBtn" class="nav-btn" onclick="nextPage()">다음</button>
+  <button id="prevBtn" class="nav-btn" type="button">이전</button>
+  <button id="nextBtn" class="nav-btn" type="button">다음</button>
 </div>
 
 <div id="petals" class="petals"></div>
@@ -215,23 +240,29 @@
   const bgm = document.getElementById('bgm');
   const sfx = document.getElementById('sfx');
 
+  const coverArea = document.getElementById('coverArea');
+  const startBtn = document.getElementById('startBtn');
+  const yesBtn = document.getElementById('yesBtn');
+
   let current = 0;
 
-  document.body.addEventListener('pointerdown', async () => {
-    if (bgm.paused) bgm.play().catch(()=>{});
+  // 첫 상호작용: BGM 시작 + SFX 워밍업 + 주소창 숨김 시도
+  function firstInteract(){
+    if (!bgm.paused) return;
+    bgm.play().catch(()=>{});
     try{
-      await sfx.play();
-      sfx.pause();
-      sfx.currentTime = 0;
+      sfx.play().then(()=>{
+        sfx.pause();
+        sfx.currentTime = 0;
+      }).catch(()=>{});
     }catch(e){}
     setTimeout(() => window.scrollTo(0,1), 120);
-  }, { once:true });
+  }
+  document.body.addEventListener('pointerdown', firstInteract, { once:true });
 
   function updateNav(){
     prevBtn.disabled = current === 0;
     nextBtn.style.display = (current === pages.length - 1) ? 'none' : 'inline-block';
-
-    // ✅ 표지면 nav 숨김, 나머지 페이지는 nav 표시
     document.body.classList.toggle('is-cover', current === 0);
   }
 
@@ -243,8 +274,24 @@
     setTimeout(() => window.scrollTo(0,1), 80);
   }
 
-  function nextPage(){ if(current < pages.length - 1) showPage(current + 1); }
-  function prevPage(){ if(current > 0) showPage(current - 1); }
+  function nextPage(){
+    if(current < pages.length - 1) showPage(current + 1);
+  }
+  function prevPage(){
+    if(current > 0) showPage(current - 1);
+  }
+
+  // ✅ 첫 화면: 아무 곳 터치해도 시작하기
+  function startFromCover(){
+    firstInteract();
+    nextPage();
+  }
+  coverArea.addEventListener('click', startFromCover);
+  startBtn.addEventListener('click', (e)=>{ e.stopPropagation(); startFromCover(); });
+
+  // 하단 네비 버튼
+  prevBtn.addEventListener('click', prevPage);
+  nextBtn.addEventListener('click', nextPage);
 
   function dropFlowers(count = 44){
     const symbols = ["🌸","🌷","💐","🌺","🌼"];
@@ -295,8 +342,15 @@
     fireworks();
     dropFlowers(44);
   }
+  yesBtn.addEventListener('click', celebrate);
 
   updateNav();
+
+  // PC 테스트용
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') nextPage();
+    if(e.key === 'ArrowLeft') prevPage();
+  });
 </script>
 </body>
 </html>
