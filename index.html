@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>형준이와 혜빈이의 이야기</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Pretendard', sans-serif;
+    background: #fdf6f0;
+    overflow: hidden;
+  }
+
+  .page {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.8s ease;
+  }
+
+  .page.active {
+    opacity: 1;
+    transform: scale(1);
+    z-index: 2;
+  }
+
+  img {
+    max-width: 90%;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+
+  button {
+    margin-top: 30px;
+    padding: 14px 32px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    background: #ff8fab;
+    color: white;
+    cursor: pointer;
+  }
+
+  .yes-btn {
+    font-size: 26px;
+    padding: 20px 50px;
+    background: #ff4d6d;
+  }
+
+  .question {
+    font-size: 32px;
+    margin-bottom: 30px;
+  }
+</style>
+</head>
+
+<body>
+
+<audio id="bgm" src="music.mp3" loop></audio>
+
+<!-- 페이지들 -->
+<div class="page active">
+  <h2>형준이와 혜빈이의 이야기 시작하기</h2>
+  <img src="1.png">
+  <button onclick="nextPage()">시작하기</button>
+</div>
+
+<div class="page"><img src="2.png"><button onclick="nextPage()">다음</button></div>
+<div class="page"><img src="3.png"><button onclick="nextPage()">다음</button></div>
+<div class="page"><img src="4.png"><button onclick="nextPage()">다음</button></div>
+<div class="page"><img src="5.png"><button onclick="nextPage()">다음</button></div>
+
+<!-- 프러포즈 -->
+<div class="page">
+  <div class="question">나와 결혼해줄래?</div>
+  <img src="6.png">
+  <button class="yes-btn" onclick="yes()">Yes!</button>
+</div>
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  let current = 0;
+  const bgm = document.getElementById('bgm');
+
+  document.body.addEventListener('click', () => {
+    bgm.play().catch(()=>{});
+  }, { once:true });
+
+  function nextPage() {
+    pages[current].classList.remove('active');
+    current++;
+    pages[current].classList.add('active');
+  }
+
+  function yes() {
+    document.body.innerHTML = `
+      <div style="
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:40px;
+        background:#fff0f6;">
+        💐 우리 앞으로도 같이 행복하자 💍
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>
