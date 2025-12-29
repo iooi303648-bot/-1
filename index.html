@@ -3,23 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>형준이와 혜빈이의 이야기</title>
+<title>우리들의 이야기</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
 
 <style>
   :root{
     --bg: #0f0d0c;
-    --card: rgba(255,255,255,0.06);
     --text: #f5f5f5;
-    --muted: rgba(245,245,245,0.75);
+    --muted: rgba(245,245,245,0.72);
     --accent: #ff4d6d;
-    --accent2:#ff8fab;
     --shadow: 0 18px 60px rgba(0,0,0,.45);
     --radius: 16px;
-
-    /* JS에서 실제 화면 높이로 주입 */
-    --vh: 1vh;
+    --vh: 1vh; /* JS에서 실제 화면 높이로 갱신 */
   }
 
   *{ box-sizing:border-box; }
@@ -27,15 +23,16 @@
   body{
     margin:0;
     font-family:"Pretendard Variable", system-ui, -apple-system, BlinkMacSystemFont;
-    background: radial-gradient(1200px 600px at 50% 70%, rgba(255,77,109,0.18), transparent 60%),
-                radial-gradient(800px 500px at 30% 20%, rgba(255,143,171,0.14), transparent 60%),
-                var(--bg);
+    background:
+      radial-gradient(1200px 600px at 50% 70%, rgba(255,77,109,0.18), transparent 60%),
+      radial-gradient(800px 500px at 30% 20%, rgba(255,143,171,0.14), transparent 60%),
+      var(--bg);
     color: var(--text);
     overflow:hidden;
     touch-action: manipulation;
   }
 
-  /* ====== 페이지 컨테이너 (주소창/툴바 피해 실제 높이 사용) ====== */
+  /* 페이지: 주소창/툴바 포함 vh 오차 방지 */
   .page{
     position:absolute;
     inset:0;
@@ -44,8 +41,8 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:12px;
-    padding: 14px 14px 86px; /* 하단 버튼 공간 */
+    gap:8px;
+    padding: 10px 12px 62px; /* 하단 버튼 공간(슬림) */
     opacity:0;
     transform: translateY(8px) scale(0.985);
     transition: opacity .55s ease, transform .55s ease;
@@ -56,22 +53,14 @@
     z-index:2;
   }
 
-  /* ====== 가로 모드 최적화 (Z Flip 6 포함) ====== */
-  @media (orientation: landscape){
-    .page{
-      padding: 10px 14px 74px;
-      gap: 10px;
-    }
-  }
-
-  /* ====== 카드 프레임 ====== */
+  /* 프레임: 그림이 주인공 */
   .frame{
-    width: min(980px, 96vw);
-    height: min(calc(var(--vh) * 82), 78vh);
+    width: min(1020px, 98vw);
+    height: min(calc(var(--vh) * 88), 84vh);
     display:flex;
     align-items:center;
     justify-content:center;
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
     border: 1px solid rgba(255,255,255,0.10);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -85,48 +74,51 @@
     display:block;
   }
 
+  /* 상단 제목: 공간 최소 */
   .title{
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: -0.03em;
     text-align:center;
-    font-size: 18px;
-    color: var(--text);
-    margin: 0;
-  }
-  .sub{
-    margin: 0;
     font-size: 13px;
     color: var(--muted);
-    text-align:center;
+    margin: 0 0 2px;
+    line-height: 1.1;
   }
 
+  /* 가로모드에서 제목 더 작게(거의 배경) */
+  @media (orientation: landscape){
+    .title{
+      font-size: 12px;
+      opacity: 0.6;
+      margin-bottom: 2px;
+    }
+  }
+
+  /* 프러포즈 문구 */
   .question{
     font-weight: 950;
     letter-spacing: -0.04em;
     text-align:center;
     line-height: 1.1;
-    margin: 0;
-    font-size: 26px;
+    margin: 0 0 4px;
+    font-size: 22px;
   }
-
   @media (orientation: landscape){
-    .title{ font-size: 16px; }
-    .sub{ font-size: 12px; }
-    .question{ font-size: 24px; }
+    .question{ font-size: 22px; }
   }
 
-  /* ====== 하단 네비: 주소/툴바 피해 안전하게 ====== */
+  /* 하단 네비: 한 줄 얇게 */
   .bottom-nav{
     position:fixed;
     left:0;
     right:0;
-    bottom: max(12px, env(safe-area-inset-bottom));
+    bottom: max(6px, env(safe-area-inset-bottom));
     display:flex;
     justify-content:center;
-    gap:10px;
-    padding: 10px 12px;
+    gap:8px;
+    padding: 6px 10px;
     z-index:50;
-    pointer-events:none; /* 바 전체는 클릭 방지, 버튼만 허용 */
+    pointer-events:none;
   }
 
   .nav-btn, .start-btn, .yes-btn{
@@ -141,31 +133,26 @@
   }
 
   .nav-btn{
-    padding: 12px 18px;
-    font-size: 15px;
-    background: rgba(255,255,255,0.86);
+    padding: 8px 14px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.82);
     color: #141414;
+    opacity: 0.75; /* 덜 튀게 */
   }
   .nav-btn:disabled{
-    opacity: .45;
+    opacity: .35;
     cursor:not-allowed;
   }
 
   .start-btn, .yes-btn{
-    padding: 14px 34px;
-    font-size: 18px;
+    padding: 10px 26px;
+    font-size: 15px;
     background: var(--accent);
     color: white;
-    box-shadow: 0 14px 34px rgba(255,77,109,.35);
+    box-shadow: 0 12px 28px rgba(255,77,109,.30);
   }
 
-  /* 가로 모드에선 버튼이 살짝 더 낮게 + 조금 작게 */
-  @media (orientation: landscape){
-    .nav-btn{ padding: 10px 16px; font-size: 14px; }
-    .start-btn, .yes-btn{ padding: 12px 30px; font-size: 16px; }
-  }
-
-  /* Yes 버튼 반복 클릭 유도(은은한 맥박) */
+  /* Yes 버튼 반복 클릭 유도(은은하게) */
   .yes-btn.pulse{
     animation: pulse 1.5s ease-in-out infinite;
   }
@@ -174,7 +161,7 @@
     50%{ transform:scale(1.03); }
   }
 
-  /* ====== 꽃잎 ====== */
+  /* 꽃잎 */
   .petals{
     position:fixed;
     inset:0;
@@ -195,22 +182,15 @@
     100% { transform: translate3d(calc(var(--x) + var(--drift)), 110vh, 0) rotate(var(--rot)); opacity:1; }
   }
 
-  /* ====== 상단의 브라우저 바 가릴 수는 없지만, 시각적 여백 최소화 ====== */
-  .tap-hint{
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    z-index: 5;
-    display:flex;
-    justify-content:center;
-    pointer-events:none;
-    opacity:.0; /* 기본 숨김 */
+  /* 세로모드에서는 가로 최적화 안내를 아주 작게만 */
+  @media (orientation: portrait){
+    .title{ opacity: .45; }
+    .frame{ height: min(calc(var(--vh) * 78), 72vh); }
   }
 </style>
 
 <script>
-  // 모바일 브라우저 주소/툴바 때문에 vh가 틀어지는 문제 해결
+  // 실제 화면 높이로 vh 보정 (주소창/툴바 영향 최소화)
   function setVH(){
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -224,15 +204,12 @@
 <body>
 <!-- 배경음악 -->
 <audio id="bgm" src="music.mp3" loop></audio>
-<!-- 폭죽 효과음 -->
+<!-- 폭죽 효과음 (BGM 끊김 없이 겹쳐 재생) -->
 <audio id="sfx" src="firework.mp3" preload="auto"></audio>
-
-<div class="tap-hint"></div>
 
 <!-- 1: 표지 -->
 <div class="page active">
-  <h1 class="title">세상에서 가장 따뜻한 동화: 우리들의 이야기</h1>
-  <p class="sub">가로 화면에 최적화되어 있어요</p>
+  <h1 class="title">우리들의 이야기</h1>
   <div class="frame"><img src="1.png" alt="cover"></div>
   <button class="start-btn" onclick="nextPage()">시작하기</button>
 </div>
@@ -250,7 +227,7 @@
   <button id="yesBtn" class="yes-btn pulse" onclick="celebrate()">Yes!</button>
 </div>
 
-<!-- 하단 이전/다음 -->
+<!-- 하단 이전/다음 (슬림) -->
 <div class="bottom-nav">
   <button id="prevBtn" class="nav-btn" onclick="prevPage()" disabled>이전</button>
   <button id="nextBtn" class="nav-btn" onclick="nextPage()">다음</button>
@@ -266,21 +243,17 @@
   const petalsLayer = document.getElementById('petals');
   const bgm = document.getElementById('bgm');
   const sfx = document.getElementById('sfx');
-  const yesBtn = document.getElementById('yesBtn');
 
   let current = 0;
 
-  // 첫 터치에서 BGM 시작 + SFX 워밍업 + 주소창 살짝 숨김 시도
+  // 첫 터치: BGM 시작 + SFX 워밍업 + 주소창 숨김 시도
   document.body.addEventListener('pointerdown', async () => {
     if (bgm.paused) bgm.play().catch(()=>{});
-
     try {
       await sfx.play();
       sfx.pause();
       sfx.currentTime = 0;
     } catch(e) {}
-
-    // 주소창 숨김 트릭(브라우저에 따라 효과)
     setTimeout(() => window.scrollTo(0, 1), 120);
   }, { once: true });
 
@@ -294,15 +267,13 @@
     current = i;
     pages[current].classList.add('active');
     updateNav();
-
-    // 페이지 이동 후 주소창 숨김 트릭 재시도
     setTimeout(() => window.scrollTo(0, 1), 80);
   }
 
   function nextPage(){ if(current < pages.length - 1) showPage(current + 1); }
   function prevPage(){ if(current > 0) showPage(current - 1); }
 
-  function dropFlowers(count = 42){
+  function dropFlowers(count = 44){
     const symbols = ["🌸","🌷","💐","🌺","🌼"];
     const w = window.innerWidth;
 
@@ -314,7 +285,7 @@
       const x = Math.floor(Math.random() * w);
       const drift = (Math.random() * 300 - 150).toFixed(0) + "px";
       const rot = (Math.random() * 720 - 360).toFixed(0) + "deg";
-      const dur = (Math.random() * 2.2 + 2.8).toFixed(2) + "s";   // 가로에서 더 경쾌하게
+      const dur = (Math.random() * 2.2 + 2.8).toFixed(2) + "s";
       const delay = (Math.random() * 0.22).toFixed(2) + "s";
       const size = (Math.random() * 14 + 18).toFixed(0) + "px";
 
@@ -331,14 +302,12 @@
   }
 
   function fireworks(){
-    // 가로 화면에 맞춰 넓게 퍼지는 느낌
     confetti({ particleCount: 110, spread: 95, startVelocity: 52, origin: { y: 0.62 }});
     confetti({ particleCount: 70,  spread: 85, startVelocity: 46, origin: { x: 0.18, y: 0.68 }});
     confetti({ particleCount: 70,  spread: 85, startVelocity: 46, origin: { x: 0.82, y: 0.68 }});
   }
 
   function playSfxFresh(){
-    // 매번 처음부터 재생(갱신)
     try{
       sfx.pause();
       sfx.currentTime = 0;
@@ -347,17 +316,16 @@
     }catch(e){}
   }
 
-  // Yes는 반복 클릭 가능: 매번 폭죽+꽃+효과음
+  // Yes 반복 클릭: 매번 폭죽+꽃+효과음 갱신
   function celebrate(){
     playSfxFresh();
     fireworks();
     dropFlowers(44);
   }
 
-  // 초기
   updateNav();
 
-  // 키보드(PC 테스트용)
+  // PC 테스트용
   window.addEventListener('keydown', (e)=>{
     if(e.key === 'ArrowRight') nextPage();
     if(e.key === 'ArrowLeft') prevPage();
