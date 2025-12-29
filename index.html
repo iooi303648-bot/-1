@@ -11,9 +11,7 @@
   :root{
     --bg:#0f0d0c;
     --text:#f5f5f5;
-    --muted:rgba(245,245,245,0.72);
     --accent:#ff4d6d;
-    --shadow:0 18px 60px rgba(0,0,0,.45);
     --vh:1vh; /* JS에서 실제 화면 높이로 갱신 */
   }
 
@@ -37,11 +35,9 @@
     inset:0;
     height: calc(var(--vh) * 100);
     display:flex;
-    flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:8px;
-    padding: 0; /* ✅ 프레임 제거 + 화면 꽉 */
+    padding:0;
     opacity:0;
     transform: translateY(8px) scale(0.985);
     transition: opacity .55s ease, transform .55s ease;
@@ -52,17 +48,7 @@
     z-index:2;
   }
 
-  /* 커버(첫 화면): 이미지 + 버튼을 하나로 */
-  .cover{
-    position:relative;
-    width:100%;
-    height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
-  /* 페이지 이미지: 최대 크게 */
+  /* 이미지: 화면 꽉 */
   .page img{
     width:100%;
     height:100%;
@@ -70,103 +56,46 @@
     display:block;
   }
 
-  /* 첫 화면 터치 안내(안 보이게 처리) */
-  .cover-hit{
+  /* 좌/우 터치 네비게이션 히트 영역 */
+  .touch-nav{
     position:absolute;
     inset:0;
-    z-index:5;
-    background: transparent;
+    z-index:20;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
   }
-
-  /* 시작하기 버튼: 작게, 이미지 위에 오버레이 */
-  .start-btn{
-    position:absolute;
-    bottom: max(18px, env(safe-area-inset-bottom));
-    left:50%;
-    transform:translateX(-50%);
-    padding: 8px 22px;
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing:-0.02em;
-    border:none;
-    border-radius:999px;
-    background: var(--accent);
-    color:white;
-    box-shadow:0 12px 24px rgba(255,77,109,.28);
-    cursor:pointer;
-    z-index:10;
+  .touch-zone{
+    background:transparent;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* 프러포즈 문구 */
-  .question{
-    position:absolute;
-    top: max(10px, env(safe-area-inset-top));
-    left: 50%;
-    transform: translateX(-50%);
-    width: 92vw;
-    text-align:center;
-    font-weight:950;
-    letter-spacing:-0.04em;
-    line-height:1.1;
-    margin:0;
-    font-size:22px;
-    z-index:10;
-    text-shadow: 0 8px 24px rgba(0,0,0,.45);
-    pointer-events:none;
-  }
-
-  /* Yes 버튼: 이미지 위에 오버레이 */
+  /* 마지막 페이지 Yes 버튼: 4/4분면(우하단) 크게 */
   .yes-btn{
     position:absolute;
-    bottom: max(18px, env(safe-area-inset-bottom));
-    left:50%;
-    transform:translateX(-50%);
-    padding: 10px 26px;
-    font-size: 15px;
+    z-index:30;
+    right: 6vw;
+    bottom: max(5vh, env(safe-area-inset-bottom));
+    padding: 14px 34px;     /* ✅ 크게 */
+    font-size: 20px;        /* ✅ 크게 */
     font-weight: 900;
     border:none;
     border-radius:999px;
     background: var(--accent);
     color:white;
-    box-shadow:0 12px 24px rgba(255,77,109,.28);
-    cursor:pointer;
-    z-index:10;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .yes-btn.pulse{ animation:pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.03)} }
-
-  /* 하단 이전/다음: 2페이지부터만 보이게(표지는 숨김) */
-  .bottom-nav{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom: max(4px, env(safe-area-inset-bottom));
-    display:flex;
-    justify-content:center;
-    gap:8px;
-    padding: 6px 10px;
-    z-index:50;
-    pointer-events:none;
-  }
-  .nav-btn{
-    pointer-events:auto;
-    padding: 8px 12px;
-    font-size: 13px;
-    font-weight: 900;
-    border:none;
-    border-radius:999px;
-    background: rgba(255,255,255,0.80);
-    color:#141414;
-    opacity:0.65;
+    box-shadow:0 14px 34px rgba(255,77,109,.35);
     cursor:pointer;
     user-select:none;
-    -webkit-tap-highlight-color:transparent;
+    -webkit-tap-highlight-color: transparent;
   }
-  .nav-btn:disabled{ opacity:.28; cursor:not-allowed; }
 
-  body.is-cover .bottom-nav{ display:none; } /* ✅ 첫 화면에 네비 제거 */
+  /* Yes 버튼 반복 클릭 유도(은은한 맥박) */
+  .yes-btn.pulse{
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.03); }
+  }
 
   /* 꽃잎 */
   .petals{ position:fixed; inset:0; pointer-events:none; z-index:200; }
@@ -186,6 +115,7 @@
 </style>
 
 <script>
+  // 실제 화면 높이로 vh 보정 (주소창/툴바 영향 최소화)
   function setVH(){
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -196,37 +126,59 @@
 </script>
 </head>
 
-<body class="is-cover">
+<body>
 <audio id="bgm" src="music.mp3" loop></audio>
 <audio id="sfx" src="firework.mp3" preload="auto"></audio>
 
-<!-- 1: 표지 (아무 곳 터치해도 시작하기) -->
-<div class="page active" id="coverPage">
-  <div class="cover" id="coverArea">
-    <img src="1.png" alt="cover">
-    <button class="start-btn" id="startBtn" type="button">시작하기</button>
-    <!-- 화면 전체 터치 영역 -->
-    <div class="cover-hit" aria-hidden="true"></div>
+<!-- 페이지들 (버튼 없음, 좌/우 터치로 이동) -->
+<div class="page active">
+  <img src="1.png" alt="p1">
+  <div class="touch-nav">
+    <div class="touch-zone" data-nav="prev" aria-label="이전"></div>
+    <div class="touch-zone" data-nav="next" aria-label="다음"></div>
   </div>
 </div>
 
-<!-- 2~5 -->
-<div class="page"><img src="2.png" alt="p2"></div>
-<div class="page"><img src="3.png" alt="p3"></div>
-<div class="page"><img src="4.png" alt="p4"></div>
-<div class="page"><img src="5.png" alt="p5"></div>
-
-<!-- 6: 마지막 -->
 <div class="page">
-  <h2 class="question">나와 결혼해줄래? 💍💐</h2>
-  <img src="6.png" alt="proposal">
-  <button id="yesBtn" class="yes-btn pulse" type="button">Yes!</button>
+  <img src="2.png" alt="p2">
+  <div class="touch-nav">
+    <div class="touch-zone" data-nav="prev"></div>
+    <div class="touch-zone" data-nav="next"></div>
+  </div>
 </div>
 
-<!-- 하단 이전/다음 -->
-<div class="bottom-nav">
-  <button id="prevBtn" class="nav-btn" type="button">이전</button>
-  <button id="nextBtn" class="nav-btn" type="button">다음</button>
+<div class="page">
+  <img src="3.png" alt="p3">
+  <div class="touch-nav">
+    <div class="touch-zone" data-nav="prev"></div>
+    <div class="touch-zone" data-nav="next"></div>
+  </div>
+</div>
+
+<div class="page">
+  <img src="4.png" alt="p4">
+  <div class="touch-nav">
+    <div class="touch-zone" data-nav="prev"></div>
+    <div class="touch-zone" data-nav="next"></div>
+  </div>
+</div>
+
+<div class="page">
+  <img src="5.png" alt="p5">
+  <div class="touch-nav">
+    <div class="touch-zone" data-nav="prev"></div>
+    <div class="touch-zone" data-nav="next"></div>
+  </div>
+</div>
+
+<!-- 마지막(6) : 문구 제거, Yes 버튼 우하단 크게 -->
+<div class="page">
+  <img src="6.png" alt="p6">
+  <button id="yesBtn" class="yes-btn pulse" type="button">Yes!</button>
+  <div class="touch-nav">
+    <div class="touch-zone" data-nav="prev"></div>
+    <div class="touch-zone" data-nav="next"></div>
+  </div>
 </div>
 
 <div id="petals" class="petals"></div>
@@ -234,14 +186,9 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
   const pages = document.querySelectorAll('.page');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
   const petalsLayer = document.getElementById('petals');
   const bgm = document.getElementById('bgm');
   const sfx = document.getElementById('sfx');
-
-  const coverArea = document.getElementById('coverArea');
-  const startBtn = document.getElementById('startBtn');
   const yesBtn = document.getElementById('yesBtn');
 
   let current = 0;
@@ -260,17 +207,10 @@
   }
   document.body.addEventListener('pointerdown', firstInteract, { once:true });
 
-  function updateNav(){
-    prevBtn.disabled = current === 0;
-    nextBtn.style.display = (current === pages.length - 1) ? 'none' : 'inline-block';
-    document.body.classList.toggle('is-cover', current === 0);
-  }
-
   function showPage(i){
     pages[current].classList.remove('active');
     current = i;
     pages[current].classList.add('active');
-    updateNav();
     setTimeout(() => window.scrollTo(0,1), 80);
   }
 
@@ -281,18 +221,19 @@
     if(current > 0) showPage(current - 1);
   }
 
-  // ✅ 첫 화면: 아무 곳 터치해도 시작하기
-  function startFromCover(){
+  // 좌/우 터치 네비
+  document.addEventListener('click', (e)=>{
+    const zone = e.target.closest('.touch-zone');
+    if(!zone) return;
+
     firstInteract();
-    nextPage();
-  }
-  coverArea.addEventListener('click', startFromCover);
-  startBtn.addEventListener('click', (e)=>{ e.stopPropagation(); startFromCover(); });
 
-  // 하단 네비 버튼
-  prevBtn.addEventListener('click', prevPage);
-  nextBtn.addEventListener('click', nextPage);
+    const dir = zone.dataset.nav;
+    if(dir === 'prev') prevPage();
+    if(dir === 'next') nextPage();
+  });
 
+  // 꽃/폭죽 효과
   function dropFlowers(count = 44){
     const symbols = ["🌸","🌷","💐","🌺","🌼"];
     const w = window.innerWidth;
@@ -337,14 +278,14 @@
   }
 
   // Yes 반복 클릭: 매번 폭죽+꽃+효과음 갱신
-  function celebrate(){
+  function celebrate(e){
+    e.stopPropagation(); // ✅ Yes 누를 때 페이지 넘김 방지
+    firstInteract();
     playSfxFresh();
     fireworks();
     dropFlowers(44);
   }
   yesBtn.addEventListener('click', celebrate);
-
-  updateNav();
 
   // PC 테스트용
   window.addEventListener('keydown', (e)=>{
