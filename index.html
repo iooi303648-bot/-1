@@ -9,13 +9,13 @@
 
 <style>
   :root{
-    --bg: #0f0d0c;
-    --text: #f5f5f5;
-    --muted: rgba(245,245,245,0.72);
-    --accent: #ff4d6d;
-    --shadow: 0 18px 60px rgba(0,0,0,.45);
-    --radius: 16px;
-    --vh: 1vh; /* JS에서 실제 화면 높이로 갱신 */
+    --bg:#0f0d0c;
+    --text:#f5f5f5;
+    --muted:rgba(245,245,245,0.72);
+    --accent:#ff4d6d;
+    --shadow:0 18px 60px rgba(0,0,0,.45);
+    --radius:16px;
+    --vh:1vh; /* JS에서 실제 화면 높이로 갱신 */
   }
 
   *{ box-sizing:border-box; }
@@ -24,12 +24,12 @@
     margin:0;
     font-family:"Pretendard Variable", system-ui, -apple-system, BlinkMacSystemFont;
     background:
-      radial-gradient(1200px 600px at 50% 70%, rgba(255,77,109,0.18), transparent 60%),
-      radial-gradient(800px 500px at 30% 20%, rgba(255,143,171,0.14), transparent 60%),
+      radial-gradient(1200px 600px at 50% 70%, rgba(255,77,109,0.16), transparent 60%),
+      radial-gradient(800px 500px at 30% 20%, rgba(255,143,171,0.12), transparent 60%),
       var(--bg);
-    color: var(--text);
+    color:var(--text);
     overflow:hidden;
-    touch-action: manipulation;
+    touch-action:manipulation;
   }
 
   /* 페이지: 주소창/툴바 포함 vh 오차 방지 */
@@ -42,7 +42,7 @@
     align-items:center;
     justify-content:center;
     gap:8px;
-    padding: 10px 12px 62px; /* 하단 버튼 공간(슬림) */
+    padding: 8px 10px 56px; /* 하단 버튼 공간(이전보다 더 얇게) */
     opacity:0;
     transform: translateY(8px) scale(0.985);
     transition: opacity .55s ease, transform .55s ease;
@@ -53,66 +53,57 @@
     z-index:2;
   }
 
-  /* 프레임: 그림이 주인공 */
+  /* 상단 제목: 기본은 아주 작게, 가로에서는 숨김 */
+  .title{
+    font-weight:700;
+    font-size:12px;
+    color:var(--muted);
+    margin:0;
+    line-height:1.1;
+    text-align:center;
+  }
+  @media (orientation: landscape){
+    .title{ display:none; } /* ✅ 가로에서는 제목 영역 자체 제거 */
+  }
+
+  /* 프러포즈 문구 */
+  .question{
+    font-weight:950;
+    letter-spacing:-0.04em;
+    text-align:center;
+    line-height:1.1;
+    margin:0 0 2px;
+    font-size:22px;
+  }
+
+  /* ✅ 핵심: 프레임을 "실제로 더 크게", 배경/여백은 더 얇게 */
   .frame{
-    width: min(1020px, 98vw);
-    height: min(calc(var(--vh) * 88), 84vh);
+    width: min(1100px, 99vw);
+    height: min(calc(var(--vh) * 94), 90vh); /* ✅ 더 크게 */
     display:flex;
     align-items:center;
     justify-content:center;
-    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
-    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(0,0,0,0.18);           /* ✅ 검은 카드 존재감 낮춤 */
+    border: 1px solid rgba(255,255,255,0.06);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     overflow:hidden;
   }
 
+  /* 이미지: 최대 크게, 여백 최소 */
   img{
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    width:100%;
+    height:100%;
+    object-fit:contain;
     display:block;
   }
 
-  /* 상단 제목: 공간 최소 */
-  .title{
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    text-align:center;
-    font-size: 13px;
-    color: var(--muted);
-    margin: 0 0 2px;
-    line-height: 1.1;
-  }
-
-  /* 가로모드에서 제목 더 작게(거의 배경) */
-  @media (orientation: landscape){
-    .title{
-      font-size: 12px;
-      opacity: 0.6;
-      margin-bottom: 2px;
-    }
-  }
-
-  /* 프러포즈 문구 */
-  .question{
-    font-weight: 950;
-    letter-spacing: -0.04em;
-    text-align:center;
-    line-height: 1.1;
-    margin: 0 0 4px;
-    font-size: 22px;
-  }
-  @media (orientation: landscape){
-    .question{ font-size: 22px; }
-  }
-
-  /* 하단 네비: 한 줄 얇게 */
+  /* 하단 네비: 매우 슬림 */
   .bottom-nav{
     position:fixed;
     left:0;
     right:0;
-    bottom: max(6px, env(safe-area-inset-bottom));
+    bottom: max(4px, env(safe-area-inset-bottom));
     display:flex;
     justify-content:center;
     gap:8px;
@@ -124,50 +115,40 @@
   .nav-btn, .start-btn, .yes-btn{
     pointer-events:auto;
     border:none;
-    border-radius: 999px;
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    border-radius:999px;
+    font-weight:900;
+    letter-spacing:-0.02em;
     cursor:pointer;
     user-select:none;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color:transparent;
   }
 
   .nav-btn{
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 13px;
-    background: rgba(255,255,255,0.82);
-    color: #141414;
-    opacity: 0.75; /* 덜 튀게 */
+    background: rgba(255,255,255,0.80);
+    color:#141414;
+    opacity:0.65; /* ✅ 더 덜 튀게 */
   }
-  .nav-btn:disabled{
-    opacity: .35;
-    cursor:not-allowed;
-  }
+  .nav-btn:disabled{ opacity:.28; cursor:not-allowed; }
 
   .start-btn, .yes-btn{
-    padding: 10px 26px;
+    padding: 10px 24px;
     font-size: 15px;
     background: var(--accent);
-    color: white;
-    box-shadow: 0 12px 28px rgba(255,77,109,.30);
+    color:white;
+    box-shadow: 0 12px 24px rgba(255,77,109,.28);
   }
+
+  /* ✅ 시작 페이지에서 "시작하기"가 메인, 이전/다음은 숨김 */
+  body.is-cover .nav-btn{ display:none; }
 
   /* Yes 버튼 반복 클릭 유도(은은하게) */
-  .yes-btn.pulse{
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-  @keyframes pulse{
-    0%,100%{ transform:scale(1); }
-    50%{ transform:scale(1.03); }
-  }
+  .yes-btn.pulse{ animation:pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
 
   /* 꽃잎 */
-  .petals{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:200;
-  }
+  .petals{ position:fixed; inset:0; pointer-events:none; z-index:200; }
   .petal{
     position:absolute;
     top:-10vh;
@@ -177,20 +158,13 @@
     will-change: transform, opacity;
   }
   @keyframes fall{
-    0%   { transform: translate3d(var(--x), -10vh, 0) rotate(0deg); opacity:0; }
-    10%  { opacity:1; }
-    100% { transform: translate3d(calc(var(--x) + var(--drift)), 110vh, 0) rotate(var(--rot)); opacity:1; }
-  }
-
-  /* 세로모드에서는 가로 최적화 안내를 아주 작게만 */
-  @media (orientation: portrait){
-    .title{ opacity: .45; }
-    .frame{ height: min(calc(var(--vh) * 78), 72vh); }
+    0%{transform:translate3d(var(--x),-10vh,0) rotate(0deg); opacity:0;}
+    10%{opacity:1;}
+    100%{transform:translate3d(calc(var(--x) + var(--drift)),110vh,0) rotate(var(--rot)); opacity:1;}
   }
 </style>
 
 <script>
-  // 실제 화면 높이로 vh 보정 (주소창/툴바 영향 최소화)
   function setVH(){
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -201,10 +175,8 @@
 </script>
 </head>
 
-<body>
-<!-- 배경음악 -->
+<body class="is-cover">
 <audio id="bgm" src="music.mp3" loop></audio>
-<!-- 폭죽 효과음 (BGM 끊김 없이 겹쳐 재생) -->
 <audio id="sfx" src="firework.mp3" preload="auto"></audio>
 
 <!-- 1: 표지 -->
@@ -220,14 +192,13 @@
 <div class="page"><div class="frame"><img src="4.png" alt="p4"></div></div>
 <div class="page"><div class="frame"><img src="5.png" alt="p5"></div></div>
 
-<!-- 6: 마지막(프러포즈) -->
+<!-- 6: 마지막 -->
 <div class="page">
   <h2 class="question">나와 결혼해줄래? 💍💐</h2>
   <div class="frame"><img src="6.png" alt="proposal"></div>
   <button id="yesBtn" class="yes-btn pulse" onclick="celebrate()">Yes!</button>
 </div>
 
-<!-- 하단 이전/다음 (슬림) -->
 <div class="bottom-nav">
   <button id="prevBtn" class="nav-btn" onclick="prevPage()" disabled>이전</button>
   <button id="nextBtn" class="nav-btn" onclick="nextPage()">다음</button>
@@ -246,20 +217,22 @@
 
   let current = 0;
 
-  // 첫 터치: BGM 시작 + SFX 워밍업 + 주소창 숨김 시도
   document.body.addEventListener('pointerdown', async () => {
     if (bgm.paused) bgm.play().catch(()=>{});
-    try {
+    try{
       await sfx.play();
       sfx.pause();
       sfx.currentTime = 0;
-    } catch(e) {}
-    setTimeout(() => window.scrollTo(0, 1), 120);
-  }, { once: true });
+    }catch(e){}
+    setTimeout(() => window.scrollTo(0,1), 120);
+  }, { once:true });
 
   function updateNav(){
     prevBtn.disabled = current === 0;
     nextBtn.style.display = (current === pages.length - 1) ? 'none' : 'inline-block';
+
+    // ✅ 표지면 nav 숨김, 나머지 페이지는 nav 표시
+    document.body.classList.toggle('is-cover', current === 0);
   }
 
   function showPage(i){
@@ -267,7 +240,7 @@
     current = i;
     pages[current].classList.add('active');
     updateNav();
-    setTimeout(() => window.scrollTo(0, 1), 80);
+    setTimeout(() => window.scrollTo(0,1), 80);
   }
 
   function nextPage(){ if(current < pages.length - 1) showPage(current + 1); }
@@ -286,7 +259,7 @@
       const drift = (Math.random() * 300 - 150).toFixed(0) + "px";
       const rot = (Math.random() * 720 - 360).toFixed(0) + "deg";
       const dur = (Math.random() * 2.2 + 2.8).toFixed(2) + "s";
-      const delay = (Math.random() * 0.22).toFixed(2) + "s";
+      const delay = (Math.random() * 0.18).toFixed(2) + "s";
       const size = (Math.random() * 14 + 18).toFixed(0) + "px";
 
       el.style.setProperty('--x', x + "px");
@@ -324,12 +297,6 @@
   }
 
   updateNav();
-
-  // PC 테스트용
-  window.addEventListener('keydown', (e)=>{
-    if(e.key === 'ArrowRight') nextPage();
-    if(e.key === 'ArrowLeft') prevPage();
-  });
 </script>
 </body>
 </html>
