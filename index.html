@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>형준이와 혜빈이의 이야기</title>
 
-<!-- Pretendard 폰트 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
 
 <style>
@@ -43,7 +42,7 @@
     box-shadow:0 14px 40px rgba(0,0,0,.15);
   }
 
-  /* 하단 네비 */
+  /* 하단 이전/다음 */
   .bottom-nav{
     position:fixed;
     bottom:20px;
@@ -54,7 +53,6 @@
     gap:12px;
     z-index:50;
   }
-
   .nav-btn{
     padding:12px 22px;
     border:none;
@@ -65,7 +63,6 @@
     backdrop-filter:blur(6px);
     cursor:pointer;
   }
-
   .nav-btn:disabled{
     opacity:.4;
     cursor:not-allowed;
@@ -88,39 +85,10 @@
     text-align:center;
     font-size:clamp(26px,5vw,40px);
     font-weight:900;
+    line-height:1.15;
   }
 
-  /* 엔딩 */
-  .ending{
-    position:absolute;
-    inset:0;
-    background:radial-gradient(circle at top,#fff,#fff0f6);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    opacity:0;
-    pointer-events:none;
-    transition:.5s ease;
-    z-index:100;
-  }
-  .ending.show{
-    opacity:1;
-    pointer-events:auto;
-  }
-
-  .ending-msg{
-    font-size:clamp(28px,6vw,46px);
-    font-weight:900;
-    line-height:1.25;
-  }
-
-  .ending-icons{
-    margin-top:16px;
-    font-size:32px;
-  }
-
-  /* 꽃잎 */
+  /* 꽃잎 레이어 */
   .petals{
     position:fixed;
     inset:0;
@@ -131,32 +99,47 @@
     position:absolute;
     top:-10vh;
     font-size:22px;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
     animation:fall linear forwards;
+    will-change: transform;
   }
   @keyframes fall{
-    from{transform:translateY(-10vh);}
-    to{transform:translateY(110vh);}
+    0%   { transform: translate3d(var(--x), -10vh, 0) rotate(0deg); opacity:0; }
+    10%  { opacity:1; }
+    100% { transform: translate3d(calc(var(--x) + var(--drift)), 110vh, 0) rotate(var(--rot)); opacity:1; }
+  }
+
+  /* Yes 후 버튼 스타일 */
+  .yes-btn.done{
+    background:#ff8fab;
+    box-shadow:none;
   }
 </style>
 </head>
 
 <body>
+<!-- 배경음악 -->
 <audio id="bgm" src="music.mp3" loop></audio>
+<!-- 폭죽 효과음 (BGM 끊김 없이 겹쳐 재생) -->
+<audio id="sfx" src="firework.mp3" preload="auto"></audio>
 
-<!-- 페이지 -->
+<!-- 1: 표지 -->
 <div class="page active">
-  <img src="1.png">
+  <img src="1.png" alt="cover">
   <button class="start-btn" onclick="nextPage()">시작하기</button>
 </div>
-<div class="page"><img src="2.png"></div>
-<div class="page"><img src="3.png"></div>
-<div class="page"><img src="4.png"></div>
-<div class="page"><img src="5.png"></div>
 
+<!-- 2~5 -->
+<div class="page"><img src="2.png" alt="p2"></div>
+<div class="page"><img src="3.png" alt="p3"></div>
+<div class="page"><img src="4.png" alt="p4"></div>
+<div class="page"><img src="5.png" alt="p5"></div>
+
+<!-- 6: 마지막(프러포즈) -->
 <div class="page">
-  <div class="question">나와 결혼해줄래?</div>
-  <img src="6.png">
-  <button class="yes-btn" onclick="yes()">Yes!</button>
+  <div class="question">나와 결혼해줄래? 💍💐</div>
+  <img src="6.png" alt="proposal">
+  <button id="yesBtn" class="yes-btn" onclick="yes()">Yes!</button>
 </div>
 
 <!-- 하단 이전/다음 -->
@@ -165,66 +148,102 @@
   <button id="nextBtn" class="nav-btn" onclick="nextPage()">다음</button>
 </div>
 
-<!-- 엔딩 -->
-<div id="ending" class="ending">
-  <div>
-    <div class="ending-msg">
-      우리 앞으로도 같이 행복하자
-    </div>
-    <div class="ending-icons">🌸💍</div>
-  </div>
-</div>
-
 <div id="petals" class="petals"></div>
 
+<!-- 폭죽(컨페티) -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
-  const pages=document.querySelectorAll('.page');
-  const prevBtn=document.getElementById('prevBtn');
-  const nextBtn=document.getElementById('nextBtn');
-  const ending=document.getElementById('ending');
-  const petals=document.getElementById('petals');
-  const bgm=document.getElementById('bgm');
+  const pages = document.querySelectorAll('.page');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const petalsLayer = document.getElementById('petals');
+  const bgm = document.getElementById('bgm');
+  const sfx = document.getElementById('sfx');
+  const yesBtn = document.getElementById('yesBtn');
 
-  let current=0, ended=false;
+  let current = 0;
 
-  document.body.addEventListener('pointerdown',()=>{
-    if(bgm.paused) bgm.play().catch(()=>{});
-  },{once:true});
+  // 모바일 자동재생 제한 대응:
+  // 첫 터치에서 BGM 재생 + SFX 권한 워밍업(잠깐 재생했다가 멈춤)
+  document.body.addEventListener('pointerdown', async () => {
+    if (bgm.paused) bgm.play().catch(()=>{});
+
+    // SFX 재생 권한 확보용(소리 안 나도 정상)
+    try {
+      await sfx.play();
+      sfx.pause();
+      sfx.currentTime = 0;
+    } catch(e) {}
+  }, { once: true });
 
   function updateNav(){
-    prevBtn.disabled=current===0||ended;
-    nextBtn.style.display=(current===pages.length-1||ended)?'none':'inline-block';
+    prevBtn.disabled = current === 0;
+    nextBtn.style.display = (current === pages.length - 1) ? 'none' : 'inline-block';
   }
 
   function showPage(i){
     pages[current].classList.remove('active');
-    current=i;
+    current = i;
     pages[current].classList.add('active');
     updateNav();
   }
 
-  function nextPage(){ if(current<pages.length-1) showPage(current+1); }
-  function prevPage(){ if(current>0) showPage(current-1); }
+  function nextPage(){ if(current < pages.length - 1) showPage(current + 1); }
+  function prevPage(){ if(current > 0) showPage(current - 1); }
 
-  function dropFlowers(n=30){
-    for(let i=0;i<n;i++){
-      const s=document.createElement('span');
-      s.className='petal';
-      s.textContent=['🌸','🌷','💐','🌺'][Math.floor(Math.random()*4)];
-      s.style.left=Math.random()*100+'vw';
-      s.style.animationDuration=(Math.random()*2+3)+'s';
-      petals.appendChild(s);
-      s.addEventListener('animationend',()=>s.remove());
+  function dropFlowers(count = 40){
+    const symbols = ["🌸","🌷","💐","🌺","🌼"];
+    const w = window.innerWidth;
+
+    for(let i=0;i<count;i++){
+      const el = document.createElement('span');
+      el.className = 'petal';
+      el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+
+      const x = Math.floor(Math.random() * w);
+      const drift = (Math.random() * 260 - 130).toFixed(0) + "px";
+      const rot = (Math.random() * 720 - 360).toFixed(0) + "deg";
+      const dur = (Math.random() * 2.6 + 3.2).toFixed(2) + "s";
+      const delay = (Math.random() * 0.7).toFixed(2) + "s";
+      const size = (Math.random() * 14 + 18).toFixed(0) + "px";
+
+      el.style.setProperty('--x', x + "px");
+      el.style.setProperty('--drift', drift);
+      el.style.setProperty('--rot', rot);
+      el.style.animationDuration = dur;
+      el.style.animationDelay = delay;
+      el.style.fontSize = size;
+
+      petalsLayer.appendChild(el);
+      el.addEventListener('animationend', ()=> el.remove());
     }
   }
 
+  function fireworks(){
+    confetti({ particleCount: 90, spread: 85, startVelocity: 48, origin: { y: 0.62 }});
+    confetti({ particleCount: 50, spread: 70, startVelocity: 40, origin: { x: 0.25, y: 0.65 }});
+    confetti({ particleCount: 50, spread: 70, startVelocity: 40, origin: { x: 0.75, y: 0.65 }});
+  }
+
+  function playSfx(){
+    // BGM은 끊지 않고, 효과음만 위에 겹쳐 재생
+    try{
+      sfx.currentTime = 0;
+      sfx.volume = 0.9;
+      sfx.play();
+    }catch(e){}
+  }
+
   function yes(){
-    ended=true;
-    updateNav();
-    confetti({particleCount:120,spread:90,origin:{y:.6}});
-    dropFlowers(40);
-    ending.classList.add('show');
+    // 효과음 + 폭죽 + 꽃 (페이지 전환 없음)
+    playSfx();
+    fireworks();
+    dropFlowers(45);
+
+    // 버튼 중복 클릭 방지
+    yesBtn.classList.add('done');
+    yesBtn.textContent = "💗";
+    yesBtn.disabled = true;
   }
 
   updateNav();
